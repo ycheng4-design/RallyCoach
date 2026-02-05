@@ -289,5 +289,3 @@ MIT License - Feel free to use and modify for your projects.
 - [Google Gemini](https://ai.google.dev/) for AI coaching
 - [Supabase](https://supabase.com/) for backend services
 - [Next.js](https://nextjs.org/) and [React](https://react.dev/) for the frontend
-#   R a l l y C o a c h  
- 
