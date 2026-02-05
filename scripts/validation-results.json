@@ -1,0 +1,169 @@
+{
+  "timestamp": "2026-02-04T06:51:53.581Z",
+  "totalRackets": 16,
+  "validImages": [
+    {
+      "id": "yonex-astrox-88d",
+      "name": "Astrox 88D Pro",
+      "brand": "Yonex",
+      "imageUrl": "https://joybadminton.com/cdn/shop/files/Yonex_Astrox_88_D_Pro_Silver_Black.png?v=1752538957"
+    },
+    {
+      "id": "yonex-nanoflare-800",
+      "name": "Nanoflare 800",
+      "brand": "Yonex",
+      "imageUrl": "https://joybadminton.com/cdn/shop/files/Yonex_Nanoflare_800_Pro_Deep_Green.png?v=1752603799"
+    },
+    {
+      "id": "li-ning-axforce-80",
+      "name": "Axforce 80",
+      "brand": "Li-Ning",
+      "imageUrl": "https://joybadminton.com/cdn/shop/files/AX80-4UG6M_864b676d-8152-4c97-b8fc-25951e4df752.png?v=1728685880"
+    },
+    {
+      "id": "victor-thruster-f",
+      "name": "Thruster F",
+      "brand": "Victor",
+      "imageUrl": "https://joybadminton.com/cdn/shop/files/Victor_Thruster_TK-F_Black_Enhanced_Edition_TK-F_C.png?v=1752276467"
+    },
+    {
+      "id": "yonex-arcsaber-11",
+      "name": "Arcsaber 11 Pro",
+      "brand": "Yonex",
+      "imageUrl": "https://joybadminton.com/cdn/shop/files/Yonex-Arcsaber-11-Pro-Grayish-Pearl.png?v=1752274374"
+    },
+    {
+      "id": "yonex-astrox-99",
+      "name": "Astrox 99 Pro",
+      "brand": "Yonex",
+      "imageUrl": "https://joybadminton.com/cdn/shop/files/Yonex_Astrox_99_Pro_3rd_Gen_Black_Green_2025.png?v=1760124758"
+    },
+    {
+      "id": "victor-auraspeed-90s",
+      "name": "Auraspeed 90S",
+      "brand": "Victor",
+      "imageUrl": "https://www.badmintonwarehouse.com/cdn/shop/products/Victor_Auraspeed_90S_Frame.jpg?v=1573691546"
+    }
+  ],
+  "invalidImages": [
+    {
+      "id": "li-ning-bladex-900",
+      "name": "BladeX 900 Moon Max",
+      "brand": "Li-Ning",
+      "imageUrl": "https://joybadminton.com/cdn/shop/files/Li-Ning_BladeX_900_Moon_Max_White_Silver.png?v=1728685123",
+      "reason": "HTTP 404"
+    },
+    {
+      "id": "yonex-duora-10",
+      "name": "Duora 10",
+      "brand": "Yonex",
+      "imageUrl": "https://www.badmintonwarehouse.com/cdn/shop/products/duora10_blueorg-1.jpg?v=1573691432",
+      "reason": "HTTP 404"
+    },
+    {
+      "id": "li-ning-windstorm-72",
+      "name": "Windstorm 72",
+      "brand": "Li-Ning",
+      "imageUrl": "https://joybadminton.com/cdn/shop/files/Li-Ning_Windstorm_72_Blue_Purple.png?v=1728686456",
+      "reason": "HTTP 404"
+    },
+    {
+      "id": "yonex-nanoflare-270",
+      "name": "Nanoflare 270 Speed",
+      "brand": "Yonex",
+      "imageUrl": "https://www.badmintonwarehouse.com/cdn/shop/files/nf270speed_427-1_03.webp?v=1710791553",
+      "reason": "HTTP 404"
+    },
+    {
+      "id": "victor-jetspeed-12",
+      "name": "Jetspeed 12",
+      "brand": "Victor",
+      "imageUrl": "https://www.badmintonwarehouse.com/cdn/shop/products/victor_jetspeed_s12_frame.jpg?v=1573691612",
+      "reason": "HTTP 404"
+    },
+    {
+      "id": "yonex-voltric-z2",
+      "name": "Voltric Z-Force II",
+      "brand": "Yonex",
+      "imageUrl": "https://www.badmintonwarehouse.com/cdn/shop/products/voltric_zforce2_1.jpg?v=1573691698",
+      "reason": "HTTP 404"
+    },
+    {
+      "id": "li-ning-turbocharging-75",
+      "name": "Turbo Charging 75",
+      "brand": "Li-Ning",
+      "imageUrl": "https://joybadminton.com/cdn/shop/files/Li-Ning_Turbo_Charging_75_Black_Red.png?v=1728686789",
+      "reason": "HTTP 404"
+    },
+    {
+      "id": "carlton-powerblade-9100",
+      "name": "Powerblade 9100",
+      "brand": "Carlton",
+      "imageUrl": "https://www.badmintonwarehouse.com/cdn/shop/products/carlton_powerblade_superlite.jpg?v=1573691234",
+      "reason": "HTTP 404"
+    },
+    {
+      "id": "yonex-gr-020g",
+      "name": "GR-020G",
+      "brand": "Yonex",
+      "imageUrl": "https://www.badmintonwarehouse.com/cdn/shop/products/gr020g_1.jpg?v=1573691345",
+      "reason": "HTTP 404"
+    }
+  ],
+  "needsAttention": [
+    {
+      "id": "li-ning-bladex-900",
+      "name": "BladeX 900 Moon Max",
+      "brand": "Li-Ning",
+      "suggestedSearch": "Li-Ning BladeX 900 Moon Max badminton racket"
+    },
+    {
+      "id": "yonex-duora-10",
+      "name": "Duora 10",
+      "brand": "Yonex",
+      "suggestedSearch": "Yonex Duora 10 badminton racket"
+    },
+    {
+      "id": "li-ning-windstorm-72",
+      "name": "Windstorm 72",
+      "brand": "Li-Ning",
+      "suggestedSearch": "Li-Ning Windstorm 72 badminton racket"
+    },
+    {
+      "id": "yonex-nanoflare-270",
+      "name": "Nanoflare 270 Speed",
+      "brand": "Yonex",
+      "suggestedSearch": "Yonex Nanoflare 270 Speed badminton racket"
+    },
+    {
+      "id": "victor-jetspeed-12",
+      "name": "Jetspeed 12",
+      "brand": "Victor",
+      "suggestedSearch": "Victor Jetspeed 12 badminton racket"
+    },
+    {
+      "id": "yonex-voltric-z2",
+      "name": "Voltric Z-Force II",
+      "brand": "Yonex",
+      "suggestedSearch": "Yonex Voltric Z-Force II badminton racket"
+    },
+    {
+      "id": "li-ning-turbocharging-75",
+      "name": "Turbo Charging 75",
+      "brand": "Li-Ning",
+      "suggestedSearch": "Li-Ning Turbo Charging 75 badminton racket"
+    },
+    {
+      "id": "carlton-powerblade-9100",
+      "name": "Powerblade 9100",
+      "brand": "Carlton",
+      "suggestedSearch": "Carlton Powerblade 9100 badminton racket"
+    },
+    {
+      "id": "yonex-gr-020g",
+      "name": "GR-020G",
+      "brand": "Yonex",
+      "suggestedSearch": "Yonex GR-020G badminton racket"
+    }
+  ]
+}

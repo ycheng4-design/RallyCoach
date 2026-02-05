@@ -1,0 +1,119 @@
+================================================================================
+BADMINTON ANALYZER - QUICK START CHECKLIST
+================================================================================
+
+Follow these steps in order:
+
+[ ] STEP 1: Get Supabase Credentials
+    - Go to https://supabase.com
+    - Create new project (wait 2-3 minutes)
+    - Settings → API → Copy:
+      * Project URL
+      * anon key
+      * service_role key
+
+[ ] STEP 2: Get Gemini API Key
+    - Go to https://aistudio.google.com/app/apikey
+    - Create API Key
+    - Copy the key
+
+[ ] STEP 3: Set Up Supabase Database
+    - Open Supabase dashboard → SQL Editor
+    - Copy ALL content from supabase-setup.sql
+    - Paste and Run
+    - Storage → New bucket → Name: "videos" → Private
+
+[ ] STEP 4: Configure backend/.env
+    GEMINI_API_KEY=<paste your gemini key>
+    SUPABASE_URL=<paste your supabase url>
+    SUPABASE_ANON_KEY=<paste your anon key>
+    SUPABASE_SERVICE_KEY=<paste your service key>
+
+[ ] STEP 5: Configure frontend/.env
+    VITE_SUPABASE_URL=<paste your supabase url>
+    VITE_SUPABASE_ANON_KEY=<paste your anon key>
+    VITE_BACKEND_URL=http://localhost:8000
+
+[ ] STEP 6: Install Backend Dependencies
+    cd backend
+    python -m venv venv
+    venv\Scripts\activate
+    pip install -r requirements.txt
+
+[ ] STEP 7: Install Frontend Dependencies
+    cd frontend
+    npm install
+
+[ ] STEP 8: Verify Setup
+    python check-setup.py
+    (All checks should pass)
+
+[ ] STEP 9: Start Backend
+    Double-click: start-backend.bat
+    OR manually:
+      cd backend
+      venv\Scripts\activate
+      python main.py
+
+    Should see: "Uvicorn running on http://0.0.0.0:8000"
+
+[ ] STEP 10: Start Frontend (new terminal)
+    Double-click: start-frontend.bat
+    OR manually:
+      cd frontend
+      npm run dev
+
+    Should see: "Local: http://localhost:5173/"
+
+[ ] STEP 11: Test the App
+    - Open http://localhost:5173
+    - Sign up with email/password
+    - Upload a video file
+    - Wait for analysis
+    - View results!
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Backend won't start?
+  → Check venv is activated (should see (venv) in terminal)
+  → Run: pip install -r requirements.txt
+  → Check .env file has real API keys (no "your-project")
+
+Frontend won't start?
+  → Check node_modules exists
+  → Run: npm install
+  → Check .env file is configured
+
+"Connection refused"?
+  → Make sure backend is running first
+  → Check http://localhost:8000/health in browser
+
+"Supabase error"?
+  → Verify .env values are correct
+  → Check SQL was executed successfully
+  → Verify storage bucket "videos" exists
+
+Analysis fails?
+  → Check Gemini API key is valid
+  → Try shorter video first
+  → Check backend terminal for errors
+
+================================================================================
+NEED HELP?
+================================================================================
+
+Read these files:
+  1. SETUP_GUIDE.md - Detailed setup instructions
+  2. README.md - Full documentation
+  3. PROJECT_SUMMARY.md - Project overview
+
+Check:
+  - Backend terminal for Python errors
+  - Browser console (F12) for frontend errors
+  - Supabase dashboard for database/auth issues
+
+================================================================================
+SUCCESS = You see the analysis results page with AI feedback! 🏸
+================================================================================
