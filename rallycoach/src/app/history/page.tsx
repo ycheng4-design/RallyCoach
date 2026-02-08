@@ -161,7 +161,7 @@ export default function HistoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen app-page">
         <DashboardNav />
         <main className="ml-64 p-4 lg:p-8 pt-16 lg:pt-8">
           <div className="max-w-5xl mx-auto">
@@ -181,13 +181,13 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen app-page">
       <DashboardNav />
 
       <main className="ml-64 p-4 lg:p-8 pt-16 lg:pt-8">
         <div className="max-w-5xl mx-auto">
           {/* Coach Header Card */}
-          <div className="coach-card rounded-2xl p-6 mb-8 relative overflow-hidden">
+          <div className="bg-gradient-to-r from-dark-900 to-dark-800 rounded-2xl p-6 mb-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 opacity-5">
               <div className="w-full h-full" style={{
                 backgroundImage: 'linear-gradient(to right, #166534 1px, transparent 1px), linear-gradient(to bottom, #166534 1px, transparent 1px)',
@@ -197,9 +197,9 @@ export default function HistoryPage() {
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-3xl">&#128203;</span>
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Session History</h1>
+                <h1 className="text-2xl lg:text-3xl font-bold text-white">Session History</h1>
               </div>
-              <p className="text-gray-600">Review your past practice and analysis sessions</p>
+              <p className="text-dark-300">Review your past practice and analysis sessions</p>
             </div>
           </div>
 
@@ -212,7 +212,7 @@ export default function HistoryPage() {
                 className={`px-4 py-2 rounded-xl font-medium transition-all ${
                   filter === type
                     ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md'
-                    : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                    : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-100'
                 }`}
               >
                 <span className="mr-1">
@@ -228,7 +228,7 @@ export default function HistoryPage() {
 
           {/* Sessions List */}
           {filteredSessions.length === 0 ? (
-            <div className="coach-card rounded-2xl p-12 text-center">
+            <div className="bg-white rounded-2xl p-12 text-center border border-gray-100 shadow-sm">
               <div className="w-20 h-20 bg-gradient-to-br from-court-50 to-court-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <span className="text-4xl">&#127992;</span>
               </div>
@@ -264,7 +264,7 @@ export default function HistoryPage() {
                 return (
                   <div
                     key={session.id}
-                    className="coach-card rounded-xl p-4 hover:border-primary-200 transition-all"
+                    className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:border-primary-200 hover:shadow-md transition-all"
                   >
                     <div className="flex items-center gap-4">
                       {/* Icon */}

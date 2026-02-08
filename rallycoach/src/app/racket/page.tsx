@@ -153,13 +153,13 @@ export default function RacketPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen app-page">
       <DashboardNav />
 
       <main className="ml-64 p-4 lg:p-8 pt-16 lg:pt-8">
         <div className="max-w-7xl mx-auto">
           {/* Coach Header Card */}
-          <div className="coach-card rounded-2xl p-6 mb-8 relative overflow-hidden">
+          <div className="bg-gradient-to-r from-dark-900 to-dark-800 rounded-2xl p-6 mb-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 opacity-5">
               <div className="w-full h-full" style={{
                 backgroundImage: 'linear-gradient(to right, #166534 1px, transparent 1px), linear-gradient(to bottom, #166534 1px, transparent 1px)',
@@ -169,14 +169,14 @@ export default function RacketPage() {
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-3xl">&#127992;</span>
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Racket Finder</h1>
+                <h1 className="text-2xl lg:text-3xl font-bold text-white">Racket Finder</h1>
               </div>
-              <p className="text-gray-600">Get personalized racket recommendations based on your playing profile</p>
+              <p className="text-dark-300">Get personalized racket recommendations based on your playing profile</p>
             </div>
           </div>
 
           {/* Selection Form */}
-          <div className="coach-card rounded-xl p-6 mb-8">
+          <div className="bg-white rounded-2xl p-6 mb-8 border border-gray-100 shadow-sm">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Skill Level */}
               <div>
@@ -247,7 +247,7 @@ export default function RacketPage() {
             </div>
 
             {error && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-600 text-sm">
                 {error}
               </div>
             )}
@@ -370,7 +370,7 @@ function RacketCard({
   }, []);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
       {/* Rank Badge */}
       <div className="relative">
         <div className="bg-gray-100 h-48 flex items-center justify-center overflow-hidden">

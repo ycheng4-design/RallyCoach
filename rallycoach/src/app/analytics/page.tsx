@@ -2164,7 +2164,7 @@ function AnalyticsContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen app-page">
       <DashboardNav />
 
       <main className="ml-64 p-8">
@@ -2179,7 +2179,7 @@ function AnalyticsContent() {
 
           {/* Upload Section */}
           {!result && !videoUrl && (
-            <div className="bg-white rounded-xl p-8 shadow-sm mb-8">
+            <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm mb-8">
               <div
                 className={`border-2 border-dashed rounded-xl p-12 text-center transition ${
                   uploading || analyzing
@@ -2254,7 +2254,7 @@ function AnalyticsContent() {
               </div>
 
               {error && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">{error}</div>
+                <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-600">{error}</div>
               )}
             </div>
           )}
@@ -2504,7 +2504,7 @@ function AnalyticsContent() {
 
                 {/* PHASE 3: Auto-level detection result panel (Gemini rationale) */}
                 {autoLevelResult && autoLevelResult.rationaleBullets.length > 0 && (
-                  <div className="mt-6 bg-white rounded-xl p-6 shadow-sm">
+                  <div className="mt-6 bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold text-gray-900">AI Analysis Notes</h3>
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -2574,7 +2574,7 @@ function AnalyticsContent() {
 
                 {/* Analysis Summary */}
                 {result && (
-                  <div className="mt-6 bg-white rounded-xl p-6 shadow-sm">
+                  <div className="mt-6 bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                     <h3 className="font-semibold text-gray-900 mb-3">Analysis Summary</h3>
                     <p className="text-gray-600">{result.technique_summary}</p>
                     {result.strategy_summary && (
@@ -2588,7 +2588,7 @@ function AnalyticsContent() {
               <div className="space-y-4">
                 <h3 className="font-semibold text-gray-900">Detected Issues</h3>
                 {analyzing ? (
-                  <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                     {/* Shimmer loading animation */}
                     <div className="animate-pulse space-y-4">
                       <div className="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -2651,7 +2651,7 @@ function AnalyticsContent() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Left Column - Issues */}
               <div className="space-y-6">
-                <div className="bg-white rounded-xl p-6 shadow-sm">
+                <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Areas to Improve</h2>
                   <div className="space-y-3">
                     {result.top_issues.map((issue) => (
@@ -2672,7 +2672,7 @@ function AnalyticsContent() {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl p-6 shadow-sm">
+                <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                   <h2 className="text-lg font-semibold text-gray-900 mb-3">Technique Summary</h2>
                   <p className="text-gray-600">{result.technique_summary}</p>
                 </div>
@@ -2680,7 +2680,7 @@ function AnalyticsContent() {
 
               {/* Right Column - Drills */}
               <div className="space-y-6">
-                <div className="bg-white rounded-xl p-6 shadow-sm">
+                <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Recommended Drills</h2>
                   <div className="space-y-3">
                     {result.drills.map((drill) => (
@@ -2797,7 +2797,7 @@ function AnalyticsContent() {
 
 function AnalyticsLoading() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen app-page">
       <DashboardNav />
       <main className="ml-64 p-8">
         <div className="max-w-7xl mx-auto">

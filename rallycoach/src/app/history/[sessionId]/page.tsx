@@ -111,12 +111,59 @@ export default function SessionDetailPage() {
       await loadVideoUrl(sessionData);
 
       // Load pose data if available
-      if (sessionData.pose_data) {
-        setPoseData(sessionData.pose_data);
+      let poseDataToUse = sessionData.pose_data;
+
+      // For strategy sessions without pose_data, try to find pose data from related sessions
+      if (!poseDataToUse && sessionData.type === 'strategy') {
+        console.log('Strategy session has no pose_data, looking for related session...');
+
+        // Try to find another session with the same video that has pose_data
+        // First try by video_path, then by video_url
+        let relatedSession = null;
+
+        if (sessionData.video_path) {
+          const { data } = await supabase
+            .from('sessions')
+            .select('pose_data')
+            .eq('video_path', sessionData.video_path)
+            .not('pose_data', 'is', null)
+            .neq('id', sessionData.id)
+            .limit(1);
+
+          if (data && data.length > 0) {
+            relatedSession = data[0];
+            console.log('Found pose_data from related session by video_path');
+          }
+        }
+
+        if (!relatedSession && sessionData.video_url) {
+          const { data } = await supabase
+            .from('sessions')
+            .select('pose_data')
+            .eq('video_url', sessionData.video_url)
+            .not('pose_data', 'is', null)
+            .neq('id', sessionData.id)
+            .limit(1);
+
+          if (data && data.length > 0) {
+            relatedSession = data[0];
+            console.log('Found pose_data from related session by video_url');
+          }
+        }
+
+        if (relatedSession?.pose_data) {
+          poseDataToUse = relatedSession.pose_data;
+        } else {
+          console.log('No related session with pose_data found');
+        }
+      }
+
+      if (poseDataToUse) {
+        setPoseData(poseDataToUse);
 
         // PHASE 3: Validate session pose data and compute scoring
         const scoring = evaluateSessionWithValidation(
-          sessionData.pose_data,
+          poseDataToUse,
           sessionData.skill_level || 'intermediate'
         );
         setSessionScoring(scoring);
@@ -400,7 +447,7 @@ export default function SessionDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen app-page">
         <DashboardNav />
         <main className="ml-64 p-8">
           <div className="max-w-7xl mx-auto">
@@ -420,11 +467,11 @@ export default function SessionDetailPage() {
 
   if (error || !session) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen app-page">
         <DashboardNav />
         <main className="ml-64 p-8">
           <div className="max-w-7xl mx-auto">
-            <div className="bg-white rounded-xl p-12 text-center shadow-sm">
+            <div className="bg-white rounded-2xl p-12 text-center border border-gray-100 shadow-sm">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -446,7 +493,7 @@ export default function SessionDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen app-page">
       <DashboardNav />
 
       <main className="ml-64 p-8">
@@ -644,7 +691,7 @@ export default function SessionDetailPage() {
               )}
 
               {/* Scoring Legend */}
-              <div className="bg-white rounded-xl p-4 shadow-sm">
+              <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
                 <h3 className="font-semibold text-gray-900 mb-3">Scoring Legend</h3>
                 <div className="grid grid-cols-4 gap-3">
                   {Object.entries(SCORING_LEGEND).map(([key, value]) => (
@@ -782,7 +829,7 @@ export default function SessionDetailPage() {
 
               {/* Current metrics display */}
               {currentBandedScore && currentBandedScore.metrics && (
-                <div className="bg-white rounded-xl p-4 shadow-sm">
+                <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
                   <h3 className="font-semibold text-gray-900 mb-3">Current Frame Metrics</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {Object.entries(currentBandedScore.metrics).map(([key, score]: [string, any]) => (
@@ -866,7 +913,7 @@ export default function SessionDetailPage() {
 
               {/* Coaching Points */}
               {strategyResult.coaching_points && strategyResult.coaching_points.length > 0 && (
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                   <div className="p-4 border-b border-gray-200">
                     <h3 className="font-semibold text-gray-900">Key Tactical Insights</h3>
                   </div>

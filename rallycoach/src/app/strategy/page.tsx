@@ -649,7 +649,7 @@ function StrategyContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen app-page">
       <DashboardNav />
 
       <main className="ml-64 p-8">
@@ -664,7 +664,7 @@ function StrategyContent() {
 
           {/* Error display */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-700">
               {error}
               <button
                 onClick={() => setError(null)}
@@ -681,7 +681,7 @@ function StrategyContent() {
               {/* Upload New */}
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition text-left group"
+                className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition text-left group"
               >
                 <div className="w-16 h-16 bg-primary-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary-200 transition">
                   <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -707,7 +707,7 @@ function StrategyContent() {
                   loadHistorySessions();
                   setShowHistoryDrawer(true);
                 }}
-                className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition text-left group"
+                className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition text-left group"
               >
                 <div className="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-200 transition">
                   <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -724,7 +724,7 @@ function StrategyContent() {
 
           {/* Step: Confirm Video */}
           {step === 'confirm' && videoUrl && (
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
               {/* Video preview */}
               <div className="bg-gray-900 aspect-video relative">
                 <video
@@ -774,7 +774,7 @@ function StrategyContent() {
 
           {/* Step: Processing */}
           {step === 'processing' && (
-            <div className="bg-white rounded-xl p-12 shadow-sm text-center">
+            <div className="bg-white rounded-2xl p-12 border border-gray-100 shadow-sm text-center">
               <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg className="w-10 h-10 text-primary-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -813,7 +813,7 @@ function StrategyContent() {
 
               {/* Shot Timeline */}
               {rallyAnalysis && rallyAnalysis.shots.length > 1 && (
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                   <div className="p-3 border-b border-gray-200">
                     <h4 className="text-sm font-medium text-gray-700">Shot Timeline</h4>
                   </div>
@@ -838,7 +838,7 @@ function StrategyContent() {
               )}
 
               {/* Court Animation */}
-              <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                   <div>
                     <h3 className="font-semibold text-gray-900">Rally Trajectory Analysis</h3>
@@ -868,7 +868,7 @@ function StrategyContent() {
 
               {/* Strategy Recommendations */}
               {recommendations.length > 0 && (
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                   <div className="p-4 border-b border-gray-200">
                     <h3 className="font-semibold text-gray-900">Recommended Strategies</h3>
                     <p className="text-sm text-gray-500">Select a strategy to see the optimal trajectory and rationale</p>
@@ -934,7 +934,7 @@ function StrategyContent() {
               )}
 
               {/* Coaching Points */}
-              <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-gray-200">
                   <h3 className="font-semibold text-gray-900">Key Tactical Insights</h3>
                   <p className="text-sm text-gray-500">{coachingPoints.length} points to improve your game</p>
@@ -1621,7 +1621,7 @@ function CourtTrajectoryAnimation({
       </div>
 
       {/* Legend */}
-      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+      <div className="mt-4 p-4 bg-gray-50 rounded-xl">
         <p className="text-sm text-gray-600">
           <span className="text-red-500 font-medium">Red trajectory:</span> Your actual shot placements during the rally.
           <br />
@@ -1646,7 +1646,7 @@ function CourtTrajectoryAnimation({
 
 function StrategyLoading() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen app-page">
       <DashboardNav />
       <main className="ml-64 p-8">
         <div className="max-w-5xl mx-auto">

@@ -600,7 +600,7 @@ function PracticeContent() {
   const greenRatio = totalFrames > 0 ? ((greenCount / totalFrames) * 100).toFixed(1) : '0';
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen app-page">
       <DashboardNav />
 
       <main className="ml-64 p-8">
@@ -617,7 +617,7 @@ function PracticeContent() {
 
           {/* Warning if using mock data */}
           {poseError && (
-            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
               <div className="flex items-center space-x-3">
                 <svg
                   className="w-5 h-5 text-yellow-500"
@@ -633,7 +633,7 @@ function PracticeContent() {
                   />
                 </svg>
                 <div>
-                  <p className="font-medium text-yellow-800">Demo Mode Active</p>
+                  <p className="font-medium text-yellow-700">Demo Mode Active</p>
                   <p className="text-sm text-yellow-700">
                     {poseError} Using simulated pose data for demonstration.
                   </p>
@@ -644,11 +644,11 @@ function PracticeContent() {
 
           {/* Upload progress/error */}
           {isUploading && (
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="mb-6 p-4 bg-primary-500/10 border border-primary-500/20 rounded-lg">
               <div className="flex items-center space-x-3">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500" />
                 <div className="flex-1">
-                  <p className="font-medium text-blue-800">Uploading session recording...</p>
+                  <p className="font-medium text-primary-700">Uploading session recording...</p>
                   <div className="mt-2 w-full bg-blue-200 rounded-full h-2">
                     <div
                       className="bg-blue-500 h-2 rounded-full transition-all duration-300"
@@ -661,7 +661,7 @@ function PracticeContent() {
           )}
 
           {uploadError && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
               <div className="flex items-center justify-between">
                 <p className="text-red-700">{uploadError}</p>
                 <button
@@ -844,7 +844,7 @@ function PracticeContent() {
 
               {/* Drill info card */}
               {currentDrill && (
-                <div className="mt-6 bg-white rounded-xl p-6 shadow-sm">
+                <div className="mt-6 bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                   <h3 className="font-semibold text-gray-900 mb-3">{currentDrill.name}</h3>
                   <p className="text-gray-600 text-sm mb-4">{currentDrill.description}</p>
                   <div className="space-y-2">
@@ -871,7 +871,7 @@ function PracticeContent() {
             {/* Stats Sidebar */}
             <div className="space-y-6">
               {/* Session Stats */}
-              <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                 <h3 className="font-semibold text-gray-900 mb-4">Session Stats</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
@@ -897,7 +897,7 @@ function PracticeContent() {
               </div>
 
               {/* Current Metrics */}
-              <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                 <h3 className="font-semibold text-gray-900 mb-4">Current Metrics</h3>
                 {currentMetrics ? (
                   <div className="space-y-3">
@@ -939,7 +939,7 @@ function PracticeContent() {
 
               {/* Score */}
               {currentEvaluation && (
-                <div className="bg-white rounded-xl p-6 shadow-sm">
+                <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                   <h3 className="font-semibold text-gray-900 mb-2">Form Score</h3>
                   <div className="text-4xl font-bold text-primary-500">
                     {currentEvaluation.score.toFixed(0)}%
@@ -951,7 +951,7 @@ function PracticeContent() {
               )}
 
               {/* Tips */}
-              <div className="bg-primary-50 rounded-xl p-6">
+              <div className="bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-2xl p-6 border border-primary-100">
                 <h3 className="font-semibold text-gray-900 mb-3">Quick Tips</h3>
                 <ul className="space-y-2 text-sm text-gray-700">
                   <li className="flex items-start space-x-2">
@@ -1021,7 +1021,7 @@ function MetricRow({
 // Loading fallback
 function PracticeLoading() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen app-page">
       <DashboardNav />
       <main className="ml-64 p-8">
         <div className="max-w-7xl mx-auto">

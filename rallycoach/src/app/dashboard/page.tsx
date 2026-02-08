@@ -241,7 +241,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen app-page flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 relative">
             <div className="absolute inset-0 animate-spin rounded-full border-4 border-primary-200 border-t-primary-500"></div>
@@ -254,38 +254,34 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen app-page">
       <DashboardNav />
 
       <main className="ml-64 p-4 lg:p-8 pt-16 lg:pt-8">
         <div className="max-w-7xl mx-auto">
           {/* Coach Header Card */}
-          <div className="coach-card rounded-2xl p-6 mb-8 relative overflow-hidden">
-            {/* Court pattern accent */}
-            <div className="absolute top-0 right-0 w-64 h-64 opacity-5">
-              <div className="w-full h-full" style={{
-                backgroundImage: 'linear-gradient(to right, #166534 1px, transparent 1px), linear-gradient(to bottom, #166534 1px, transparent 1px)',
-                backgroundSize: '20px 20px'
-              }} />
-            </div>
+          <div className="bg-gradient-to-r from-dark-900 to-dark-800 rounded-2xl p-6 mb-8 relative overflow-hidden border border-white/5">
+            {/* Grid pattern accent */}
+            <div className="absolute inset-0 hero-grid opacity-30" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/5 rounded-full blur-3xl" />
             <div className="relative z-10 flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-3xl">&#127992;</span>
-                  <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Dashboard</h1>
+                  <h1 className="text-2xl lg:text-3xl font-bold text-white">Dashboard</h1>
                 </div>
-                <p className="text-gray-600">Track your badminton training progress and get coach insights</p>
+                <p className="text-dark-300">Track your badminton training progress and get coach insights</p>
               </div>
-              <div className="hidden lg:flex items-center gap-2 px-4 py-2 bg-court-50 border border-court-200 rounded-full">
-                <span className="w-2 h-2 bg-court-500 rounded-full animate-pulse"></span>
-                <span className="text-sm font-medium text-court-700">Coach Active</span>
+              <div className="hidden lg:flex items-center gap-2 px-4 py-2 bg-accent-green/10 border border-accent-green/20 rounded-full">
+                <span className="w-2 h-2 bg-accent-green rounded-full animate-pulse"></span>
+                <span className="text-sm font-medium text-accent-green">Coach Active</span>
               </div>
             </div>
           </div>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6 mb-8">
-            <div className="coach-card rounded-xl p-4 lg:p-6 stat-card-sport">
+            <div className="stat-card-premium p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs lg:text-sm text-gray-500">Total Sessions</p>
@@ -302,7 +298,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="coach-card rounded-xl p-4 lg:p-6 stat-card-sport">
+            <div className="stat-card-premium p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs lg:text-sm text-gray-500">Average Score</p>
@@ -321,7 +317,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="coach-card rounded-xl p-4 lg:p-6 stat-card-sport">
+            <div className="stat-card-premium p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs lg:text-sm text-gray-500">Good Form</p>
@@ -340,7 +336,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="coach-card rounded-xl p-4 lg:p-6 stat-card-sport">
+            <div className="stat-card-premium p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs lg:text-sm text-gray-500">Court Time</p>
@@ -359,7 +355,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="coach-card rounded-xl p-4 lg:p-6 stat-card-sport col-span-2 md:col-span-1">
+            <div className="stat-card-premium p-4 lg:p-6 col-span-2 md:col-span-1">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs lg:text-sm text-gray-500">Improvement</p>
@@ -382,7 +378,7 @@ export default function DashboardPage() {
           {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mb-8">
             {/* Score Trend */}
-            <div className="lg:col-span-2 coach-card rounded-xl p-4 lg:p-6">
+            <div className="lg:col-span-2 bg-white rounded-2xl p-4 lg:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">&#128200;</span>
@@ -416,7 +412,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Green vs Red Ratio */}
-            <div className="coach-card rounded-xl p-4 lg:p-6">
+            <div className="bg-white rounded-2xl p-4 lg:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-xl">&#127919;</span>
                 <h3 className="text-lg font-semibold text-gray-900">Form Quality</h3>
@@ -457,7 +453,7 @@ export default function DashboardPage() {
           {/* Bottom Row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
             {/* Coach Feedback - Top Issues */}
-            <div className="coach-card rounded-xl p-4 lg:p-6">
+            <div className="bg-white rounded-2xl p-4 lg:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-xl">&#128161;</span>
                 <h3 className="text-lg font-semibold text-gray-900">Coach Feedback</h3>
@@ -490,7 +486,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Check-ins Chart */}
-            <div className="coach-card rounded-xl p-4 lg:p-6">
+            <div className="bg-white rounded-2xl p-4 lg:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-xl">&#128197;</span>
                 <h3 className="text-lg font-semibold text-gray-900">Court Activity</h3>
@@ -515,7 +511,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Actions */}
-            <div className="coach-card rounded-xl p-4 lg:p-6">
+            <div className="bg-white rounded-2xl p-4 lg:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-xl">&#9889;</span>
                 <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>

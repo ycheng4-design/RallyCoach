@@ -1,603 +1,427 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
-import type { User } from '@supabase/supabase-js';
 
-export default function LandingPage() {
-  const [user, setUser] = useState<User | null>(null);
+/*
+ * IMAGE ASSETS
+ * ============
+ * Place your own images in /public/images/ and update these paths.
+ * See /public/images/README.md for specs.
+ *
+ * hero-team-bg.png  → Team lineup (Layer 1 background)
+ * hero-jumper.png   → Single player transparent PNG (Layer 3 foreground)
+ * arena-gear.png    → Rackets/equipment closeup
+ * arena-match.png   → Tournament/match action shot
+ * arena-drills.png  → Training drills photo
+ * court-tactics.png → Court overhead / tactical view
+ */
+const IMAGES = {
+  // Layer 1: Team background (replace with your badminton team photo)
+  heroBg: "/images/hero-team-bg.png",
+  // Layer 3: Jump smash player (MUST be transparent PNG)
+  heroJumper: "/images/hero-jumper.png",
+  // Arena gallery
+  arenaGear: "/images/arena-gear.png",
+  arenaMatch: "/images/arena-match.png",
+  arenaDrills: "/images/arena-drills.png",
+  // Feature section
+  courtTactics: "/images/court-tactics.png",
+};
+
+// --- RevealOnScroll component ---
+function RevealOnScroll({ children, className = "", delay = 0, threshold = 0.1 }: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  threshold?: number;
+}) {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-    });
-  }, []);
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold }
+    );
+    observer.observe(el);
+    return () => { if (el) observer.unobserve(el); };
+  }, [threshold]);
 
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-out transform w-full ${
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      } ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// --- RallyCoach Logo (Blue + Green blocks) ---
+function RCLogo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
+  const dims = size === "lg" ? "w-5 h-10" : size === "md" ? "w-4 h-8" : "w-3 h-6";
+  const textSize = size === "lg" ? "text-2xl" : size === "md" ? "text-xl" : "text-lg";
+  return (
+    <div className="flex items-center gap-3 cursor-pointer group">
+      <div className="flex items-center transform group-hover:scale-110 transition-transform duration-300">
+        <div className={`${dims} bg-blue-700 -skew-x-12 rounded-sm`} />
+        <div className={`${dims} bg-green-600 -skew-x-12 -ml-1 rounded-sm`} />
+      </div>
+      <span className={`${textSize} font-black italic tracking-tighter text-inherit`}>
+        RALLY<span className="text-green-600">COACH</span>
+      </span>
+    </div>
+  );
+}
+
+export default function LandingPage() {
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-court-600 rounded-xl flex items-center justify-center shadow-md">
-                <svg viewBox="0 0 32 32" fill="none" className="w-7 h-7">
-                  <circle cx="16" cy="22" r="6" fill="#a8845c" />
-                  <path d="M16 4 L18 16 L16 18 L14 16 Z" fill="white" />
-                  <path d="M10 8 L14 17 L16 18 L12 15 Z" fill="white" fillOpacity="0.9" />
-                  <path d="M22 8 L18 17 L16 18 L20 15 Z" fill="white" fillOpacity="0.9" />
-                  <path d="M7 12 L13 17 L16 18 L10 14 Z" fill="white" fillOpacity="0.8" />
-                  <path d="M25 12 L19 17 L16 18 L22 14 Z" fill="white" fillOpacity="0.8" />
-                </svg>
-              </div>
-              <div>
-                <span className="font-bold text-xl text-gray-900 block leading-tight">RallyCoach</span>
-                <span className="text-xs text-gray-500 hidden sm:block">AI Badminton Coach</span>
-              </div>
-            </div>
+    <div className="min-h-screen bg-slate-900 text-white overflow-x-hidden font-sans">
 
-            <div className="hidden md:flex items-center space-x-8">
-              <button
-                onClick={() => scrollToSection('analytics-section')}
-                className="text-gray-600 hover:text-primary-500 transition"
-              >
-                Analytics
-              </button>
-              <button
-                onClick={() => scrollToSection('practice-section')}
-                className="text-gray-600 hover:text-primary-500 transition"
-              >
-                Practice
-              </button>
-              <button
-                onClick={() => scrollToSection('racket-section')}
-                className="text-gray-600 hover:text-primary-500 transition"
-              >
-                Racket
-              </button>
-            </div>
+      {/* ===== NAVIGATION ===== */}
+      <nav className="fixed top-0 w-full z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-md">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <Link href="/" className="text-blue-900">
+            <RCLogo size="md" />
+          </Link>
 
-            <div className="flex items-center space-x-4">
-              {user ? (
-                <Link
-                  href="/dashboard"
-                  className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition"
-                >
-                  Dashboard
-                </Link>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="text-gray-600 hover:text-gray-900 transition"
-                  >
-                    Log in
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition"
-                  >
-                    Sign up
-                  </Link>
-                </>
-              )}
-            </div>
+          <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-widest text-slate-500">
+            <button onClick={() => scrollToSection('hero-section')} className="hover:text-blue-700 transition-colors">Home</button>
+            <button onClick={() => scrollToSection('features-section')} className="hover:text-blue-700 transition-colors">Training</button>
+            <button onClick={() => scrollToSection('arena-section')} className="hover:text-blue-700 transition-colors">Academy</button>
+          </div>
+
+          {/* Auth buttons - always show Log In + Get Started on landing page */}
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="hidden sm:inline-flex px-4 py-2 text-sm font-semibold text-slate-600 hover:text-blue-700 transition-colors"
+            >
+              Log In
+            </Link>
+            <Link
+              href="/login"
+              className="px-6 py-2.5 font-bold tracking-wider text-white bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 rounded-lg shadow-lg shadow-orange-900/30 transition-all duration-300 hover:-translate-y-0.5 text-xs"
+            >
+              Get Started
+            </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 relative overflow-hidden">
-        {/* Court pattern background */}
-        <div className="absolute inset-0 court-bg opacity-50" />
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          {/* Sport badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-court-50 border border-court-200 rounded-full mb-6">
-            <span className="text-2xl">&#127992;</span>
-            <span className="text-sm font-medium text-court-700">Powered by Google Gemini AI</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6">
-            Your AI-Powered
-            <br />
-            <span className="gradient-text">Badminton Coach</span>
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10">
-            Analyze your technique, practice with real-time feedback, and get
-            personalized equipment recommendations. All powered by advanced AI.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/signup"
-              className="px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/25 quick-action-btn"
-            >
-              Start Training Free
-            </Link>
-            <button
-              onClick={() => scrollToSection('features-section')}
-              className="px-8 py-4 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:border-gray-400 transition"
-            >
-              Learn More
-            </button>
-          </div>
+      {/* ===== HERO SECTION: 3-LAYER SANDWICH ===== */}
+      <section id="hero-section" className="relative w-full h-screen overflow-hidden bg-black flex items-center justify-center pt-20">
+
+        {/* --- LAYER 1: ATMOSPHERE & TEAM BACKGROUND --- */}
+        <div className="absolute inset-0 z-0">
+          {/* Neon light beams (CSS magic) */}
+          <div className="absolute top-0 left-[-10%] w-[40%] h-full bg-blue-600/40 blur-[120px] transform -skew-x-12" />
+          <div className="absolute top-0 right-[-10%] w-[40%] h-full bg-red-600/40 blur-[120px] transform -skew-x-12" />
+
+          {/* Team photo - faded & blended */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={IMAGES.heroBg}
+            alt="Badminton team lineup"
+            className="w-full h-full object-cover opacity-50 grayscale mix-blend-screen"
+            style={{
+              maskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
+              WebkitMaskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
+            }}
+            role="presentation"
+          />
         </div>
 
-        {/* Hero Image Placeholder */}
-        <div className="max-w-5xl mx-auto mt-16">
-          <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-8 shadow-xl">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
-                  <svg
-                    className="w-6 h-6 text-primary-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Video Analysis</h3>
-                <p className="text-gray-600 text-sm">
-                  Upload your gameplay videos for detailed AI analysis
-                </p>
-              </div>
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <div className="w-12 h-12 bg-accent-green/20 rounded-lg flex items-center justify-center mb-4">
-                  <svg
-                    className="w-6 h-6 text-accent-green"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Live Coaching</h3>
-                <p className="text-gray-600 text-sm">
-                  Real-time feedback as you practice your form
-                </p>
-              </div>
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <div className="w-12 h-12 bg-accent-yellow/20 rounded-lg flex items-center justify-center mb-4">
-                  <svg
-                    className="w-6 h-6 text-accent-yellow"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Smart Gear</h3>
-                <p className="text-gray-600 text-sm">
-                  Personalized racket recommendations for your style
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* --- LAYER 2: TEXT CONTENT (sandwiched in middle) --- */}
+        <div className="relative z-30 text-center transform -translate-y-10 px-6">
+          <RevealOnScroll delay={100}>
+            <h1 className="text-5xl md:text-7xl lg:text-9xl font-black italic tracking-tighter text-white drop-shadow-2xl leading-none">
+              MASTER<br />YOUR SMASH
+            </h1>
+          </RevealOnScroll>
+
+          <RevealOnScroll delay={300}>
+            <p className="text-slate-300 mt-4 text-lg md:text-xl font-medium tracking-wide max-w-2xl mx-auto">
+              Empower your daily badminton training for your RallyCoach.
+            </p>
+          </RevealOnScroll>
+
+          <RevealOnScroll delay={500}>
+            <Link
+              href="/login"
+              className="inline-block mt-8 px-8 py-3 bg-white text-black font-bold uppercase tracking-wider rounded shadow-[0_0_20px_rgba(255,255,255,0.4)] hover:scale-105 transition-transform text-sm"
+            >
+              Get Started
+            </Link>
+          </RevealOnScroll>
+        </div>
+
+        {/* --- LAYER 3: POP-OUT PLAYER (foreground, on top) --- */}
+        <div className="absolute bottom-[4%] left-0 z-20 h-[90%] w-full flex justify-start pointer-events-none pl-[8%]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={IMAGES.heroJumper}
+            alt="Badminton player jump smash"
+            className="h-full w-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)] animate-float-slow"
+            style={{ marginRight: '-5%' }}
+          />
+        </div>
+
+        {/* Torn paper edge at bottom */}
+        <div className="absolute bottom-0 left-0 w-full z-30">
+          <svg viewBox="0 0 1440 120" fill="none" preserveAspectRatio="none" className="w-full h-16 md:h-24">
+            <path d="M0,80 C200,120 400,40 600,80 C800,120 1000,40 1200,80 C1300,100 1380,60 1440,80 L1440,120 L0,120 Z" fill="#f8fafc" />
+          </svg>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features-section" className="py-20 px-4 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Everything You Need to Improve
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Powered by Google Gemini AI for intelligent coaching insights
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* ===== CATEGORY CARDS: Tactical / Physical / Mental ===== */}
+      <section className="relative z-20 py-20 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              {
-                icon: '🎯',
-                title: 'Pose Analysis',
-                description:
-                  'MediaPipe-powered skeleton tracking analyzes your form in real-time',
-              },
-              {
-                icon: '🤖',
-                title: 'AI Coaching',
-                description:
-                  'Gemini AI provides instant feedback and long-term training plans',
-              },
-              {
-                icon: '📊',
-                title: 'Progress Tracking',
-                description:
-                  'Visualize your improvement over time with detailed analytics',
-              },
-              {
-                icon: '🏸',
-                title: 'Drill Library',
-                description:
-                  'Access targeted drills to address your specific weaknesses',
-              },
-              {
-                icon: '🎾',
-                title: 'Gear Matching',
-                description:
-                  'Find the perfect racket based on your playing style and level',
-              },
-              {
-                icon: '📱',
-                title: 'Works Anywhere',
-                description:
-                  'Practice at home with just your webcam - no special equipment needed',
-              },
-            ].map((feature, i) => (
-              <div key={i} className="bg-white rounded-xl p-6 shadow-sm">
-                <div className="text-3xl mb-4">{feature.icon}</div>
-                <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
-              </div>
+              { title: "Tactical", sub: "Strategy Board", desc: "Map rallies, analyze opponents, plan doubles formations", icon: (
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+              ), color: "text-blue-600", href: "/strategy" },
+              { title: "Physical", sub: "Drill Library", desc: "AI-guided practice with real-time pose detection feedback", icon: (
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              ), color: "text-green-600", href: "/practice" },
+              { title: "Mental", sub: "Video Analysis", desc: "Upload gameplay and get AI analysis of your technique", icon: (
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              ), color: "text-blue-600", href: "/analytics" },
+            ].map((item, i) => (
+              <RevealOnScroll key={i} delay={i * 200}>
+                <Link href="/login" className="block bg-white p-8 flex items-center justify-between rounded-3xl rounded-tr-none shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all cursor-pointer border-b-8 border-transparent hover:border-green-500 group">
+                  <div>
+                    <h3 className="text-2xl font-black uppercase italic text-slate-800 group-hover:text-blue-800 transition-colors">{item.title}</h3>
+                    <p className="text-slate-500 font-medium">{item.sub}</p>
+                  </div>
+                  <div className={`w-16 h-16 bg-slate-50 rounded-2xl rounded-tr-none flex items-center justify-center ${item.color} group-hover:scale-110 transition-transform shadow-inner`}>
+                    {item.icon}
+                  </div>
+                </Link>
+              </RevealOnScroll>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Analytics Section */}
-      <section id="analytics-section" className="py-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-block px-4 py-1 bg-primary-100 text-primary-600 rounded-full text-sm font-medium mb-4">
-                Video Analytics
-              </div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Deep Dive Into Your Technique
-              </h2>
-              <p className="text-gray-600 mb-6">
-                Upload your gameplay or practice videos and let our AI analyze every
-                aspect of your form. Get detailed feedback on:
-              </p>
-              <ul className="space-y-3">
-                {[
-                  'Swing mechanics and racket path',
-                  'Footwork and stance positioning',
-                  'Body rotation and weight transfer',
-                  'Shot timing and preparation',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center space-x-3">
-                    <svg
-                      className="w-5 h-5 text-accent-green"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
+      {/* ===== FEATURE: VISUALIZE VICTORY (Strategy + AI) ===== */}
+      <section id="features-section" className="py-24 bg-slate-50 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-blue-100/50 -skew-x-12 transform translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-green-100/50 rounded-full blur-3xl" />
+
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="flex flex-col md:flex-row gap-16 items-center">
+            {/* Image side */}
+            <div className="md:w-1/2 relative group">
+              <RevealOnScroll className="w-full">
+                <div className="absolute top-6 left-6 w-full h-full bg-blue-600 rounded-3xl rounded-tr-none transform rotate-3 transition-transform group-hover:rotate-6 opacity-20" />
+                <div className="absolute top-6 left-6 w-full h-full bg-green-500 rounded-3xl rounded-tr-none transform -rotate-2 transition-transform group-hover:-rotate-4 opacity-20" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={IMAGES.courtTactics} alt="Badminton court tactics" className="w-full relative z-10 rounded-3xl rounded-tr-none shadow-2xl border-4 border-white transform transition-transform group-hover:scale-[1.02]" />
+              </RevealOnScroll>
+            </div>
+
+            {/* Text side */}
+            <div className="md:w-1/2 space-y-8">
+              <RevealOnScroll delay={200}>
+                <h2 className="text-4xl md:text-5xl font-black italic uppercase text-slate-900 leading-tight">
+                  Visualize <br/>
+                  <span className="text-blue-700 relative inline-block">
+                    Victory
+                    <svg className="absolute w-full h-3 -bottom-1 left-0 text-green-500" viewBox="0 0 100 10" preserveAspectRatio="none">
+                      <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="4" fill="none" />
                     </svg>
-                    <span className="text-gray-700">{item}</span>
-                  </li>
+                  </span>
+                </h2>
+              </RevealOnScroll>
+
+              <RevealOnScroll delay={400}>
+                <p className="text-slate-600 leading-relaxed text-lg">
+                  Upload your gameplay videos and let Google Gemini AI analyze every aspect of your form. Get MediaPipe-powered skeleton tracking, swing mechanics analysis, and personalized 5-day training plans.
+                </p>
+              </RevealOnScroll>
+
+              <ul className="space-y-4">
+                {[
+                  'AI-powered pose analysis with live skeleton overlay',
+                  'Real-time coaching cues during practice sessions',
+                  'Personalized racket recommendations based on your style',
+                ].map((feat, i) => (
+                  <RevealOnScroll key={i} delay={600 + (i * 100)}>
+                    <li className="flex items-center gap-4 text-lg font-bold text-slate-800 bg-white p-4 rounded-xl shadow-sm hover:shadow-md hover:translate-x-2 transition-all">
+                      <div className="bg-green-100 p-2 rounded-full">
+                        <svg className="text-green-600 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      {feat}
+                    </li>
+                  </RevealOnScroll>
                 ))}
               </ul>
-              <Link
-                href={user ? '/analytics' : '/signup'}
-                className="inline-block mt-8 px-6 py-3 bg-primary-500 text-white rounded-lg font-medium hover:bg-primary-600 transition"
-              >
-                Analyze Your Video
-              </Link>
-            </div>
-            <div className="bg-gray-100 rounded-2xl p-8">
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="font-medium text-gray-900">Analysis Results</span>
-                  <span className="text-sm text-accent-green">Complete</span>
-                </div>
-                <div className="space-y-4">
-                  <div className="p-3 bg-red-50 rounded-lg border border-red-100">
-                    <p className="font-medium text-red-800 text-sm">High Priority</p>
-                    <p className="text-red-700 text-sm">Elbow drops too low during backhand</p>
-                  </div>
-                  <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-100">
-                    <p className="font-medium text-yellow-800 text-sm">Medium Priority</p>
-                    <p className="text-yellow-700 text-sm">Stance could be wider for stability</p>
-                  </div>
-                  <div className="p-3 bg-green-50 rounded-lg border border-green-100">
-                    <p className="font-medium text-green-800 text-sm">Looking Good</p>
-                    <p className="text-green-700 text-sm">Excellent body rotation on clears</p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Practice Section */}
-      <section id="practice-section" className="py-20 px-4 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2 lg:order-1 bg-gray-900 rounded-2xl p-4">
-              <div className="aspect-video bg-gray-800 rounded-xl relative overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-primary-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg
-                        className="w-8 h-8 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-gray-400">Webcam Preview</p>
-                  </div>
-                </div>
-                {/* Skeleton overlay preview */}
-                <svg
-                  className="absolute inset-0 w-full h-full opacity-50"
-                  viewBox="0 0 100 100"
-                  preserveAspectRatio="none"
-                >
-                  <line
-                    x1="45"
-                    y1="25"
-                    x2="55"
-                    y2="25"
-                    stroke="#22c55e"
-                    strokeWidth="0.5"
-                  />
-                  <line
-                    x1="50"
-                    y1="25"
-                    x2="50"
-                    y2="45"
-                    stroke="#22c55e"
-                    strokeWidth="0.5"
-                  />
-                  <line
-                    x1="45"
-                    y1="45"
-                    x2="55"
-                    y2="45"
-                    stroke="#22c55e"
-                    strokeWidth="0.5"
-                  />
-                  <line
-                    x1="45"
-                    y1="45"
-                    x2="40"
-                    y2="65"
-                    stroke="#22c55e"
-                    strokeWidth="0.5"
-                  />
-                  <line
-                    x1="55"
-                    y1="45"
-                    x2="60"
-                    y2="65"
-                    stroke="#22c55e"
-                    strokeWidth="0.5"
-                  />
-                </svg>
+      {/* ===== ARENA / GALLERY (Badminton only) ===== */}
+      <section id="arena-section" className="py-24 bg-blue-900 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
+          <div className="absolute -top-20 -left-20 w-96 h-96 bg-blue-800 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob" />
+          <div className="absolute -top-20 -right-20 w-96 h-96 bg-green-800 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 text-center mb-16 relative z-10">
+          <RevealOnScroll>
+            <h2 className="text-5xl font-black italic uppercase text-white tracking-tighter">
+              The <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-200">Arena</span>
+            </h2>
+            <div className="w-32 h-2 bg-gradient-to-r from-green-500 to-blue-500 mx-auto mt-6 rounded-full" />
+          </RevealOnScroll>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 h-96 gap-4 px-4 relative z-10">
+          {/* Panel 1: Gear */}
+          <RevealOnScroll delay={100} className="h-full">
+            <Link href="/login" className="block relative group overflow-hidden h-full rounded-2xl rounded-tr-none bg-blue-800/50 border border-blue-600/30">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={IMAGES.arenaGear} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Badminton rackets and shuttlecocks" />
+              <div className="absolute inset-0 bg-blue-900/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                <span className="text-white font-bold text-xl uppercase tracking-widest border-2 border-white px-6 py-2">Gear</span>
               </div>
-              <div className="flex items-center justify-between mt-4 px-2">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-accent-green rounded-full animate-pulse"></div>
-                  <span className="text-gray-400 text-sm">Live</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-accent-green font-medium">Good Form!</p>
-                  <p className="text-gray-500 text-sm">Keep your elbow steady</p>
+            </Link>
+          </RevealOnScroll>
+
+          {/* Panel 2: Match (wide) */}
+          <RevealOnScroll delay={200} className="h-full md:col-span-2">
+            <div className="relative group overflow-hidden h-full rounded-2xl bg-blue-800/50 border border-blue-600/30">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={IMAGES.arenaMatch} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Badminton tournament match" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+              <div className="absolute bottom-6 left-6">
+                <h3 className="text-white font-black italic text-3xl uppercase">BWF Tour</h3>
+                <p className="text-green-400 font-bold">Watch &amp; Learn</p>
+              </div>
+              <div className="absolute inset-0 bg-blue-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border-2 border-white/50 hover:scale-110 transition-transform cursor-pointer">
+                  <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
                 </div>
               </div>
             </div>
-            <div className="order-1 lg:order-2">
-              <div className="inline-block px-4 py-1 bg-accent-green/20 text-accent-green rounded-full text-sm font-medium mb-4">
-                Practice Mode
+          </RevealOnScroll>
+
+          {/* Panel 3: Drills */}
+          <RevealOnScroll delay={300} className="h-full">
+            <Link href="/login" className="block relative group overflow-hidden h-full rounded-2xl rounded-bl-none bg-blue-800/50 border border-blue-600/30">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={IMAGES.arenaDrills} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Badminton training drills" />
+              <div className="absolute inset-0 bg-green-600/90 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                <span className="text-white font-bold text-xl uppercase tracking-widest border-2 border-white px-6 py-2">Drills</span>
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Real-Time Form Coaching
-              </h2>
-              <p className="text-gray-600 mb-6">
-                Practice your swings with instant visual feedback. Our pose detection
-                tracks your body position and provides live coaching cues:
-              </p>
-              <ul className="space-y-3">
-                {[
-                  'Green skeleton overlay when form is correct',
-                  'Red indicators highlight areas to improve',
-                  'Voice-style text cues guide your movements',
-                  'Track green/red ratio to see consistency',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center space-x-3">
-                    <svg
-                      className="w-5 h-5 text-accent-green"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    <span className="text-gray-700">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href={user ? '/practice' : '/signup'}
-                className="inline-block mt-8 px-6 py-3 bg-accent-green text-white rounded-lg font-medium hover:bg-green-600 transition"
-              >
-                Start Practicing
-              </Link>
+            </Link>
+          </RevealOnScroll>
+        </div>
+      </section>
+
+      {/* ===== APP FEATURES GRID ===== */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <RevealOnScroll>
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-black italic uppercase text-slate-900 mb-4">Everything You Need</h2>
+              <p className="text-slate-500 max-w-xl mx-auto">Powered by Google Gemini AI and MediaPipe pose detection</p>
             </div>
+          </RevealOnScroll>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { icon: '🎯', title: 'Pose Analysis', desc: 'MediaPipe skeleton tracking analyzes your form frame-by-frame' },
+              { icon: '🤖', title: 'AI Coaching', desc: 'Google Gemini provides real-time cues and 5-day training plans' },
+              { icon: '📊', title: 'Progress Dashboard', desc: 'Track sessions, scores, form quality, and improvement trends' },
+              { icon: '🏸', title: 'Rally Strategy', desc: 'Analyze rally patterns with shot segmentation and trajectory mapping' },
+              { icon: '🎾', title: 'Racket Finder', desc: 'AI-matched racket recommendations based on your weaknesses' },
+              { icon: '📱', title: 'Webcam Practice', desc: 'Practice at home with live green/red skeleton overlay feedback' },
+            ].map((f, i) => (
+              <RevealOnScroll key={i} delay={i * 100}>
+                <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all border border-slate-100 group">
+                  <div className="text-3xl mb-3">{f.icon}</div>
+                  <h3 className="font-bold text-slate-900 mb-1 group-hover:text-blue-700 transition-colors">{f.title}</h3>
+                  <p className="text-slate-500 text-sm">{f.desc}</p>
+                </div>
+              </RevealOnScroll>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Racket Section */}
-      <section id="racket-section" className="py-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-block px-4 py-1 bg-accent-yellow/20 text-yellow-700 rounded-full text-sm font-medium mb-4">
-                Racket Finder
-              </div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Find Your Perfect Racket
-              </h2>
-              <p className="text-gray-600 mb-6">
-                Based on your skill level, playing style, and areas you want to
-                improve, we recommend rackets that match your needs:
-              </p>
-              <ul className="space-y-3">
-                {[
-                  'Recommendations based on your weakness analysis',
-                  'Compare weight, balance, and flexibility',
-                  'Save favorites for later reference',
-                  'Direct links to purchase options',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center space-x-3">
-                    <svg
-                      className="w-5 h-5 text-accent-yellow"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    <span className="text-gray-700">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href={user ? '/racket' : '/signup'}
-                className="inline-block mt-8 px-6 py-3 bg-accent-yellow text-gray-900 rounded-lg font-medium hover:bg-yellow-400 transition"
-              >
-                Find Your Racket
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {['Astrox 88D', 'Nanoflare 800', 'Arcsaber 11', 'Thruster F'].map(
-                (name, i) => (
-                  <div key={i} className="bg-gray-50 rounded-xl p-4">
-                    <div className="bg-gray-200 rounded-lg h-32 mb-3 flex items-center justify-center">
-                      <span className="text-4xl">🏸</span>
-                    </div>
-                    <p className="font-medium text-gray-900 text-sm">{name}</p>
-                    <p className="text-gray-500 text-xs">
-                      {i % 2 === 0 ? 'Power' : 'Speed'} Style
-                    </p>
-                  </div>
-                )
-              )}
-            </div>
-          </div>
+      {/* ===== CTA SECTION ===== */}
+      <section className="py-24 px-4 relative overflow-hidden bg-slate-900">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-b from-blue-500/15 to-transparent rounded-full blur-3xl" />
         </div>
-      </section>
+        <div className="absolute inset-0 hero-grid opacity-20" />
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 relative overflow-hidden">
-        {/* Court gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-court-600 via-court-700 to-court-800" />
-        {/* Court lines pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'linear-gradient(to right, #fff 2px, transparent 2px), linear-gradient(to bottom, #fff 2px, transparent 2px)',
-            backgroundSize: '60px 60px'
-          }} />
-          {/* Center line */}
-          <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-white/30" />
-          <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-white/30" />
-        </div>
         <div className="max-w-3xl mx-auto text-center relative z-10">
-          <div className="inline-block mb-6">
-            <span className="text-5xl">&#127992;</span>
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Ready to Elevate Your Game?
-          </h2>
-          <p className="text-court-100 mb-8 text-lg">
-            Join thousands of players improving their badminton skills with AI coaching
-          </p>
-          <Link
-            href="/signup"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-court-700 rounded-xl font-semibold hover:bg-court-50 transition shadow-lg quick-action-btn"
-          >
-            <span>Get Started Free</span>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </Link>
+          <RevealOnScroll>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              Ready to Elevate Your Game?
+            </h2>
+          </RevealOnScroll>
+          <RevealOnScroll delay={200}>
+            <p className="text-slate-300 mb-8 text-lg">
+              Join players improving with AI coaching, pose analysis, and personalized training
+            </p>
+          </RevealOnScroll>
+          <RevealOnScroll delay={400}>
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-tr-3xl rounded-bl-3xl font-bold hover:from-orange-400 hover:to-red-500 transition-all shadow-lg shadow-orange-500/20 transform hover:-translate-y-2 hover:shadow-2xl text-lg"
+            >
+              <span>Get Started Free</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Link>
+          </RevealOnScroll>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 px-4 bg-gray-900 relative overflow-hidden">
-        {/* Subtle court pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
-          }} />
-        </div>
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-3 mb-4 md:mb-0">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
-                <svg viewBox="0 0 32 32" fill="none" className="w-7 h-7">
-                  <circle cx="16" cy="22" r="6" fill="#a8845c" />
-                  <path d="M16 4 L18 16 L16 18 L14 16 Z" fill="white" />
-                  <path d="M10 8 L14 17 L16 18 L12 15 Z" fill="white" fillOpacity="0.9" />
-                  <path d="M22 8 L18 17 L16 18 L20 15 Z" fill="white" fillOpacity="0.9" />
-                </svg>
-              </div>
-              <div>
-                <span className="font-bold text-xl text-white block">RallyCoach</span>
-                <span className="text-xs text-gray-400">AI Badminton Coach</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-gray-400 text-sm">
-              <span className="text-xl">&#127992;</span>
-              <span>Powered by Google Gemini AI and MediaPipe</span>
-            </div>
+      {/* ===== FOOTER ===== */}
+      <footer className="bg-white py-12 border-t border-slate-200">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="text-slate-900">
+            <RCLogo size="sm" />
           </div>
-          <div className="mt-8 pt-8 border-t border-gray-800 text-center">
-            <p className="text-gray-500 text-sm">Train smarter. Play better. Rally to victory.</p>
+          <p className="text-slate-500 text-sm">&copy; 2026 RallyCoach Inc. All rights reserved.</p>
+          <div className="flex gap-6 text-slate-400 font-medium">
+            <a href="#" className="hover:text-blue-700 hover:underline">Privacy</a>
+            <a href="#" className="hover:text-blue-700 hover:underline">Terms</a>
+            <a href="#" className="hover:text-blue-700 hover:underline">Support</a>
           </div>
         </div>
       </footer>
