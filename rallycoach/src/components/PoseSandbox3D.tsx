@@ -49,7 +49,7 @@ class CanvasErrorBoundary extends Component<CanvasErrorBoundaryProps, CanvasErro
         </div>
       );
     }
-    return <div key={this.state.errorKey}>{this.props.children}</div>;
+    return <div key={this.state.errorKey} className="h-full">{this.props.children}</div>;
   }
 }
 
@@ -218,7 +218,7 @@ function landmarksTo3D(
 
   for (let i = 0; i < landmarks.length; i++) {
     const lm = landmarks[i];
-    if (lm && lm.visibility > 0.3) {
+    if (lm && lm.visibility > 0.05) {
       // Center and scale the pose
       const x = (lm.x - 0.5) * scale;
       const y = -(lm.y - 0.5) * scale; // Flip Y for 3D
@@ -328,17 +328,9 @@ function CorrectionArrow({ from, to }: CorrectionArrowProps) {
     return new THREE.Vector3(...from).distanceTo(new THREE.Vector3(...to));
   }, [from, to]);
 
-  const midpoint = useMemo<[number, number, number]>(() => {
-    return [
-      (from[0] + to[0]) / 2,
-      (from[1] + to[1]) / 2,
-      (from[2] + to[2]) / 2,
-    ];
-  }, [from, to]);
-
   return (
-    <group position={midpoint}>
-      <arrowHelper args={[direction, new THREE.Vector3(0, 0, 0), length / 2, 0x00a0ff, 0.05, 0.03]} />
+    <group position={from}>
+      <arrowHelper args={[direction, new THREE.Vector3(0, 0, 0), length, 0x00a0ff, 0.08, 0.04]} />
     </group>
   );
 }

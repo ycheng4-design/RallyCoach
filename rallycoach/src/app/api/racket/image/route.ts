@@ -3,29 +3,29 @@ import { NextResponse } from 'next/server';
 // Verified real racket image URLs from reliable CDN sources
 // These URLs are verified to exist and match the actual racket products
 const VERIFIED_RACKET_IMAGES: Record<string, string> = {
-  // Yonex rackets - from joybadminton.com CDN (verified)
-  'yonex-astrox-88d': 'https://joybadminton.com/cdn/shop/files/Yonex_Astrox_88_D_Pro_Silver_Black.png?v=1752538957',
-  'yonex-nanoflare-800': 'https://joybadminton.com/cdn/shop/files/Yonex_Nanoflare_800_Pro_Deep_Green.png?v=1752603799',
-  'yonex-arcsaber-11': 'https://joybadminton.com/cdn/shop/files/Yonex-Arcsaber-11-Pro-Grayish-Pearl.png?v=1752274374',
-  'yonex-astrox-99': 'https://joybadminton.com/cdn/shop/files/Yonex_Astrox_99_Pro_3rd_Gen_Black_Green_2025.png?v=1760124758',
-  'yonex-duora-10': 'https://www.badmintonwarehouse.com/cdn/shop/products/duora10_blueorg-1.jpg?v=1573691432',
-  'yonex-nanoflare-270': 'https://www.badmintonwarehouse.com/cdn/shop/files/nf270speed_427-1_03.webp?v=1710791553',
-  'yonex-voltric-z2': 'https://www.badmintonwarehouse.com/cdn/shop/products/voltric_zforce2_1.jpg?v=1573691698',
-  'yonex-gr-020g': 'https://www.badmintonwarehouse.com/cdn/shop/products/gr020g_1.jpg?v=1573691345',
+  // Yonex rackets - verified from actual product page fetches
+  'yonex-astrox-88d': 'https://www.badmintonwarehouse.com/cdn/shop/files/3ax88d-p_076-1_02.webp?v=1710791552',
+  'yonex-nanoflare-800': 'https://www.badmintonwarehouse.com/cdn/shop/files/Nanoflare_800_Pro_Badminton_Racket_Frame_New.jpg?v=1701107286',
+  'yonex-arcsaber-11': 'https://www.badmintonwarehouse.com/cdn/shop/products/arcsaber_11_pro_badminton_racket_frame.jpg?v=1661951339',
+  'yonex-astrox-99': 'https://www.badmintonwarehouse.com/cdn/shop/products/Yonex_Astrox_99_CS_Racket_Frame.jpg?v=1632452557',
+  'yonex-duora-10': 'https://www.badmintonalley.com/v/vspfiles/photos/RACKET-YONEX-DUORA-10-BLUE-ORG-2.jpg?v-cache=1765504033',
+  'yonex-nanoflare-270': 'https://www.badmintonwarehouse.com/cdn/shop/products/Nanoflare_270_Speed_Badminton_Racket_Frame.jpg?v=1630972156',
+  'yonex-voltric-z2': 'https://e78.us/cdn/shop/products/VTZF2.jpg?v=1556564595',
+  'yonex-gr-020g': 'https://www.tradeinn.com/f/13967/139679606/yonex-gr-020g-badminton-racket.webp',
 
   // Li-Ning rackets
   'li-ning-axforce-80': 'https://joybadminton.com/cdn/shop/files/AX80-4UG6M_864b676d-8152-4c97-b8fc-25951e4df752.png?v=1728685880',
-  'li-ning-bladex-900': 'https://joybadminton.com/cdn/shop/files/Li-Ning_BladeX_900_Moon_Max_Blue.png?v=1728686123',
-  'li-ning-windstorm-72': 'https://joybadminton.com/cdn/shop/files/Li-Ning_Windstorm_72_Blue_Purple.png?v=1728686456',
-  'li-ning-turbocharging-75': 'https://joybadminton.com/cdn/shop/files/Li-Ning_Turbo_Charging_75.png?v=1728686789',
+  'li-ning-bladex-900': 'https://badmintonhq.co.uk/cdn/shop/files/NEWBLADEXMOON_grande.jpg?v=1763735494',
+  'li-ning-windstorm-72': 'https://joybadminton.com/cdn/shop/files/WS72-6UG64.png?v=1727478334',
+  'li-ning-turbocharging-75': 'https://e78.us/cdn/shop/products/badminton-racket-AYPM392-1-B_590x.jpg?v=1561116280',
 
   // Victor rackets
-  'victor-thruster-f': 'https://joybadminton.com/cdn/shop/files/Victor_Thruster_TK-F_Black_Enhanced_Edition_TK-F_C.png?v=1752276467',
+  'victor-thruster-f': 'https://www.badmintonwarehouse.com/cdn/shop/products/Thruster_F_Enhanced_Edition_Badminton_Racket_Frame.jpg?v=1668568284',
   'victor-auraspeed-90s': 'https://www.badmintonwarehouse.com/cdn/shop/products/Victor_Auraspeed_90S_Frame.jpg?v=1573691546',
-  'victor-jetspeed-12': 'https://www.badmintonwarehouse.com/cdn/shop/products/victor_jetspeed_12_frame.jpg?v=1573691612',
+  'victor-jetspeed-12': 'https://joybadminton.com/cdn/shop/files/Victor_JetSpeed_S12_II_F_JS-12_II.png?v=1752708377',
 
   // Carlton rackets
-  'carlton-powerblade-9100': 'https://www.badmintonwarehouse.com/cdn/shop/products/carlton_powerblade_9100.jpg?v=1573691234'
+  'carlton-powerblade-9100': 'https://www.tennisnuts.com/images/product/full/p_114404_A.jpg'
 };
 
 // Fallback image search using Google Custom Search or direct CDN patterns

@@ -44,7 +44,7 @@ Training Plan:
 Respond in {'Chinese' if user_lang.startswith('zh') else 'English'}.
 """
 
-    GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+    GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent"
     headers = { "Content-Type": "application/json" }
     payload = {
         "contents": [{"parts": [{"text": prompt}]}]

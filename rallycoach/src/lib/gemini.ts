@@ -6,10 +6,33 @@ const genAI = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!,
 });
 
-// Model names - Updated to stable versions
-const FLASH_MODEL = 'gemini-2.0-flash';
-const PRO_MODEL = 'gemini-2.0-flash';  // Use flash as pro-exp is deprecated
-const IMAGE_MODEL = 'gemini-2.0-flash';  // Use flash for image gen since exp model is deprecated
+// Model names - Gemini 3 (preview)
+const FLASH_MODEL = 'gemini-3-flash-preview';
+const PRO_MODEL = 'gemini-3-pro-preview';
+const IMAGE_MODEL = 'gemini-3-pro-image-preview';
+
+// Gemini 3 thinking tokens can make response.text contain non-JSON prefixes.
+// This helper robustly extracts JSON from potentially wrapped output.
+function safeParseJSON(text: string): any {
+  const raw = text.trim();
+  try { return JSON.parse(raw); } catch {}
+  // Try extracting from markdown code fences
+  const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenceMatch) { try { return JSON.parse(fenceMatch[1].trim()); } catch {} }
+  // Try finding first { to last }
+  const start = raw.indexOf('{');
+  const end = raw.lastIndexOf('}');
+  if (start !== -1 && end > start) {
+    try { return JSON.parse(raw.slice(start, end + 1)); } catch {}
+  }
+  // Try array
+  const aStart = raw.indexOf('[');
+  const aEnd = raw.lastIndexOf(']');
+  if (aStart !== -1 && aEnd > aStart) {
+    try { return JSON.parse(raw.slice(aStart, aEnd + 1)); } catch {}
+  }
+  return {};
+}
 
 // Schema for practice tick response
 const tickResponseSchema = {
@@ -18,8 +41,10 @@ const tickResponseSchema = {
     cue: { type: Type.STRING, description: 'Short coaching cue (max 10 words)' },
     focus_metric: { type: Type.STRING, description: 'The metric to focus on' },
     is_green: { type: Type.BOOLEAN, description: 'Whether current form is good' },
+    commentary: { type: Type.STRING, description: 'Real-time multimodal commentary on the player movement (1-2 sentences, conversational and encouraging)' },
+    reason: { type: Type.STRING, description: 'Brief reasoning for why this cue was chosen based on the metrics (1 sentence)' },
   },
-  required: ['cue', 'focus_metric', 'is_green'],
+  required: ['cue', 'focus_metric', 'is_green', 'commentary', 'reason'],
 };
 
 // Schema for analysis result
@@ -78,19 +103,25 @@ const analysisResultSchema = {
 export async function getCoachingCue(
   metrics: PoseMetrics,
   drillContext?: string
-): Promise<{ cue: string; focus_metric: string; is_green: boolean }> {
-  const prompt = `You are a badminton coach giving real-time feedback.
+): Promise<{ cue: string; focus_metric: string; is_green: boolean; commentary: string; reason: string; latency_ms: number }> {
+  const prompt = `You are an expert badminton coach providing real-time live commentary during practice.
 
-Current player metrics:
-- Elbow angle: ${metrics.elbow_angle.toFixed(1)}° (ideal: 90-120°)
-- Knee angle: ${metrics.knee_angle.toFixed(1)}° (ideal: 120-150°)
+Current player pose metrics (from live camera pose estimation):
+- Elbow angle: ${metrics.elbow_angle.toFixed(1)}° (ideal: 90-120° for clear/smash shots)
+- Knee angle: ${metrics.knee_angle.toFixed(1)}° (ideal: 120-150° for ready position)
 - Stance width (normalized): ${metrics.stance_width_norm.toFixed(2)} (ideal: 0.3-0.5)
 - Shoulder-hip rotation: ${metrics.shoulder_hip_rotation_proxy.toFixed(2)} (ideal: 0.1-0.3)
 
 ${drillContext ? `Current drill: ${drillContext}` : ''}
 
-Give ONE short coaching cue (max 10 words). Focus on the metric that needs most improvement.
-Determine if overall form is acceptable (is_green).`;
+Provide:
+1. ONE short coaching cue (max 10 words) - the most important correction right now
+2. The metric that needs most focus
+3. Whether overall form is acceptable (is_green)
+4. A brief real-time commentary (1-2 sentences) as if you were watching the player live - be conversational and encouraging
+5. A reasoning hint explaining WHY you chose this specific cue based on the metrics`;
+
+  const startTime = Date.now();
 
   try {
     const response = await genAI.models.generateContent({
@@ -100,23 +131,33 @@ Determine if overall form is acceptable (is_green).`;
         responseMimeType: 'application/json',
         responseSchema: tickResponseSchema,
         temperature: 0.3,
-        maxOutputTokens: 100,
+        maxOutputTokens: 2000,
+        thinkingConfig: {
+          thinkingBudget: 200,
+        },
       },
     });
 
-    const result = JSON.parse(response.text || '{}');
+    const latency_ms = Date.now() - startTime;
+    const result = safeParseJSON(response.text || '{}');
     return {
       cue: result.cue || 'Keep your form steady',
       focus_metric: result.focus_metric || 'elbow_angle',
       is_green: result.is_green ?? false,
+      commentary: result.commentary || '',
+      reason: result.reason || '',
+      latency_ms,
     };
   } catch (error) {
     console.error('Gemini Flash error:', error);
-    // Fallback response
+    const latency_ms = Date.now() - startTime;
     return {
       cue: 'Stay focused on your stance',
       focus_metric: 'stance_width_norm',
       is_green: metrics.knee_angle >= 120 && metrics.knee_angle <= 150,
+      commentary: '',
+      reason: '',
+      latency_ms,
     };
   }
 }
@@ -166,11 +207,14 @@ Be specific, actionable, and encouraging.`;
         responseMimeType: 'application/json',
         responseSchema: analysisResultSchema,
         temperature: 0.4,
-        maxOutputTokens: 2000,
+        maxOutputTokens: 8000,
+        thinkingConfig: {
+          thinkingBudget: 1000,
+        },
       },
     });
 
-    const result = JSON.parse(response.text || '{}');
+    const result = safeParseJSON(response.text || '{}');
     return result as AnalysisResultJson;
   } catch (error) {
     console.error('Gemini Pro error:', error);
@@ -240,11 +284,14 @@ Return as JSON array: [{"id": "racket-id-here", "match_score": 85, "match_reason
       config: {
         responseMimeType: 'application/json',
         temperature: 0.3,
-        maxOutputTokens: 500,
+        maxOutputTokens: 2000,
+        thinkingConfig: {
+          thinkingBudget: 200,
+        },
       },
     });
 
-    const rankings = JSON.parse(response.text || '[]');
+    const rankings = safeParseJSON(response.text || '[]');
 
     // Merge rankings with racket data
     return rankings.slice(0, 5).map((rank: { id: string; match_score: number; match_reason: string }) => {

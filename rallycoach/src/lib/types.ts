@@ -129,6 +129,9 @@ export interface TickResponse {
     [key: string]: { min: number; max: number };
   };
   is_green: boolean;
+  commentary?: string;
+  reason?: string;
+  latency_ms?: number;
 }
 
 export interface RacketRecommendRequest {

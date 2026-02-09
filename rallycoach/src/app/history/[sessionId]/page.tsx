@@ -551,6 +551,7 @@ export default function SessionDetailPage() {
                     <video
                       ref={videoRef}
                       className="absolute inset-0 w-full h-full object-contain"
+                      style={{ zIndex: 1 }}
                       onTimeUpdate={handleTimeUpdate}
                       onLoadedMetadata={handleLoadedMetadata}
                       onEnded={() => setIsPlaying(false)}
@@ -564,14 +565,13 @@ export default function SessionDetailPage() {
                     </video>
                     <canvas
                       ref={canvasRef}
-                      className={`absolute inset-0 w-full h-full object-contain pointer-events-none ${
-                        showSkeleton ? '' : 'hidden'
-                      }`}
+                      className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                      style={{ display: showSkeleton ? 'block' : 'none', zIndex: 2 }}
                     />
 
                     {/* Banded score indicator */}
                     {currentBandedScore && (
-                      <div className={`absolute top-4 left-4 px-3 py-1.5 rounded-full text-sm font-medium ${
+                      <div className={`absolute top-4 left-4 px-3 py-1.5 rounded-full text-sm font-medium z-10 ${
                         currentBandedScore.overall_band === 'green' ? 'bg-green-500 text-white' :
                         currentBandedScore.overall_band === 'yellow' ? 'bg-yellow-500 text-white' :
                         currentBandedScore.overall_band === 'red' ? 'bg-red-500 text-white' :
@@ -585,7 +585,7 @@ export default function SessionDetailPage() {
                     )}
 
                     {/* Time display */}
-                    <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                    <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
                       {formatTime(currentTime)} / {formatTime(duration)}
                     </div>
                   </div>
@@ -830,7 +830,14 @@ export default function SessionDetailPage() {
               {/* Current metrics display */}
               {currentBandedScore && currentBandedScore.metrics && (
                 <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
-                  <h3 className="font-semibold text-gray-900 mb-3">Current Frame Metrics</h3>
+                  <h3 className="font-semibold text-gray-900 mb-3">
+                    Current Frame Metrics
+                    {session.type === 'practice' && (
+                      <span className="ml-2 text-xs font-normal text-gray-500">
+                        (Scrub timeline to see per-frame analysis)
+                      </span>
+                    )}
+                  </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {Object.entries(currentBandedScore.metrics).map(([key, score]: [string, any]) => (
                       <div key={key} className={`p-3 rounded-lg ${
@@ -854,6 +861,115 @@ export default function SessionDetailPage() {
 
             {/* Issues Panel */}
             <div className="space-y-4">
+              {/* Practice Session Coaching Summary */}
+              {session.type === 'practice' && sessionScoring && (
+                <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Practice Summary
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-1">AI-powered form analysis</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-gray-900">
+                        {Math.round(sessionScoring.validation.validPoseRatio * 100)}%
+                      </p>
+                      <p className="text-xs text-gray-500">Pose Coverage</p>
+                    </div>
+                  </div>
+
+                  {/* Band Distribution Bar */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                      <span>Form Quality Distribution</span>
+                      <span>{sessionScoring.validation.totalFrames} frames</span>
+                    </div>
+                    <div className="flex gap-0.5 h-6 rounded-lg overflow-hidden border border-gray-200">
+                      <div
+                        className="bg-green-500 flex items-center justify-center text-white text-xs font-medium"
+                        style={{ width: `${sessionScoring.greenFrameRatio * 100}%` }}
+                        title={`Green: ${(sessionScoring.greenFrameRatio * 100).toFixed(1)}%`}
+                      >
+                        {sessionScoring.greenFrameRatio > 0.15 && `${Math.round(sessionScoring.greenFrameRatio * 100)}%`}
+                      </div>
+                      <div
+                        className="bg-yellow-500 flex items-center justify-center text-white text-xs font-medium"
+                        style={{ width: `${sessionScoring.yellowFrameRatio * 100}%` }}
+                        title={`Yellow: ${(sessionScoring.yellowFrameRatio * 100).toFixed(1)}%`}
+                      >
+                        {sessionScoring.yellowFrameRatio > 0.15 && `${Math.round(sessionScoring.yellowFrameRatio * 100)}%`}
+                      </div>
+                      <div
+                        className="bg-red-500 flex items-center justify-center text-white text-xs font-medium"
+                        style={{ width: `${sessionScoring.redFrameRatio * 100}%` }}
+                        title={`Red: ${(sessionScoring.redFrameRatio * 100).toFixed(1)}%`}
+                      >
+                        {sessionScoring.redFrameRatio > 0.15 && `${Math.round(sessionScoring.redFrameRatio * 100)}%`}
+                      </div>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>Excellent form</span>
+                      <span>Needs work</span>
+                    </div>
+                  </div>
+
+                  {/* Persistent Issues */}
+                  {sessionScoring.persistentIssues && sessionScoring.persistentIssues.length > 0 && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                      <h4 className="text-sm font-semibold text-yellow-900 mb-2 flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Focus Areas
+                      </h4>
+                      <ul className="text-sm text-yellow-800 space-y-1">
+                        {sessionScoring.persistentIssues.map((issue: string, i: number) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="text-yellow-600 mt-0.5">&#8226;</span>
+                            <span>{issue}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Quick Stats Grid */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-gray-50 rounded-lg p-3 text-center">
+                      <p className="text-xs text-gray-600 mb-1">Avg Confidence</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {Math.round(sessionScoring.validation.avgConfidence * 100)}%
+                      </p>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3 text-center">
+                      <p className="text-xs text-gray-600 mb-1">Valid Frames</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {sessionScoring.validation.validPoseFrames}
+                      </p>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3 text-center">
+                      <p className="text-xs text-gray-600 mb-1">Green Ratio</p>
+                      <p className="text-lg font-bold text-green-600">
+                        {Math.round(sessionScoring.greenFrameRatio * 100)}%
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Validation Warning */}
+                  {!sessionScoring.validation.isValid && (
+                    <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                      <p className="text-xs text-gray-600">
+                        <span className="font-medium">Note:</span> {sessionScoring.displayMessage}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <h3 className="font-semibold text-gray-900">
                 Detected Issues ({issues.length})
               </h3>
@@ -873,8 +989,14 @@ export default function SessionDetailPage() {
               ) : sessionScoring?.canShowGreatForm ? (
                 /* PHASE 3: Only show "Great form!" if session validation passed */
                 <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-green-800">
-                  <p className="font-medium">Great form!</p>
-                  <p className="text-sm">No major issues detected in this session.</p>
+                  <p className="font-medium">
+                    {session.type === 'practice' ? 'Excellent Practice Session!' : 'Great form!'}
+                  </p>
+                  <p className="text-sm">
+                    {session.type === 'practice' && sessionScoring
+                      ? `${Math.round(sessionScoring.greenFrameRatio * 100)}% of your frames showed excellent form. Keep up the great work!`
+                      : 'No major issues detected in this session.'}
+                  </p>
                 </div>
               ) : sessionScoring && !sessionScoring.validation.isValid ? (
                 /* PHASE 3: Low confidence / coverage warning */
@@ -889,8 +1011,14 @@ export default function SessionDetailPage() {
               ) : (
                 /* PHASE 3: Neutral state - good coverage but minor issues */
                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-700">
-                  <p className="font-medium">Form Analysis Complete</p>
-                  <p className="text-sm">{sessionScoring?.displayMessage || 'Minor adjustments may help improve your form.'}</p>
+                  <p className="font-medium">
+                    {session.type === 'practice' ? 'Practice Session Analysis' : 'Form Analysis Complete'}
+                  </p>
+                  <p className="text-sm">
+                    {session.type === 'practice' && sessionScoring
+                      ? `Review the summary above for insights. ${Math.round(sessionScoring.greenFrameRatio * 100)}% green frames shows ${sessionScoring.greenFrameRatio >= 0.7 ? 'strong' : 'developing'} technique.`
+                      : (sessionScoring?.displayMessage || 'Minor adjustments may help improve your form.')}
+                  </p>
                 </div>
               )}
 

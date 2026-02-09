@@ -42,6 +42,10 @@ function PracticeContent() {
   const showSkeletonRef = useRef(true);
   const useMockDataRef = useRef(false);
 
+  // Refs to avoid stale closures in setInterval (sendTick)
+  const currentMetricsRef = useRef<PoseMetrics | null>(null);
+  const currentEvaluationRef = useRef<EvaluationResult | null>(null);
+
   // MediaRecorder refs for session recording
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
@@ -59,6 +63,9 @@ function PracticeContent() {
   const [coachingCue, setCoachingCue] = useState('Get ready to start!');
   const [focusMetric, setFocusMetric] = useState('');
   const [failingRules, setFailingRules] = useState<string[]>([]);
+  const [commentary, setCommentary] = useState('');
+  const [reason, setReason] = useState('');
+  const [latencyMs, setLatencyMs] = useState<number | null>(null);
 
   const [greenCount, setGreenCount] = useState(0);
   const [redCount, setRedCount] = useState(0);
@@ -88,6 +95,14 @@ function PracticeContent() {
   useEffect(() => {
     useMockDataRef.current = useMockData;
   }, [useMockData]);
+
+  useEffect(() => {
+    currentMetricsRef.current = currentMetrics;
+  }, [currentMetrics]);
+
+  useEffect(() => {
+    currentEvaluationRef.current = currentEvaluation;
+  }, [currentEvaluation]);
 
   // Initialize MediaPipe Pose Landmarker
   useEffect(() => {
@@ -447,14 +462,16 @@ function PracticeContent() {
   }, [currentDrill]);
 
   const sendTick = async () => {
-    if (!currentMetrics) return;
+    // Use refs to avoid stale closure — setInterval captures initial state values
+    const metrics = currentMetricsRef.current;
+    if (!metrics) return;
 
     try {
       const response = await fetch('/api/practice/tick', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          metrics_snapshot: currentMetrics,
+          metrics_snapshot: metrics,
           drill_id: drillId || undefined,
           session_id: sessionIdRef.current,
         }),
@@ -470,12 +487,22 @@ function PracticeContent() {
         if (data.green_thresholds) {
           setThresholds(data.green_thresholds as typeof DEFAULT_THRESHOLDS);
         }
+        if (data.commentary) {
+          setCommentary(data.commentary);
+        }
+        if (data.reason) {
+          setReason(data.reason);
+        }
+        if (data.latency_ms !== undefined) {
+          setLatencyMs(data.latency_ms);
+        }
       }
     } catch (error) {
-      // Use local evaluation if API fails
-      if (currentEvaluation) {
-        if (currentEvaluation.failedRules.length > 0) {
-          setCoachingCue(currentEvaluation.failedRules[0].feedback);
+      // Use local evaluation if API fails — also read from ref
+      const evaluation = currentEvaluationRef.current;
+      if (evaluation) {
+        if (evaluation.failedRules.length > 0) {
+          setCoachingCue(evaluation.failedRules[0].feedback);
         } else {
           setCoachingCue('Great form! Keep it up!');
         }
@@ -704,7 +731,7 @@ function PracticeContent() {
 
                   {/* Status overlay */}
                   {isActive && (
-                    <div className="absolute top-4 left-4 right-16 flex justify-between items-start">
+                    <div className="absolute top-4 left-4 right-16 flex justify-between items-start z-10">
                       <div className="flex items-center space-x-2">
                         <div
                           className={`w-3 h-3 rounded-full ${
@@ -723,7 +750,7 @@ function PracticeContent() {
 
                   {/* Failing rules indicator */}
                   {isActive && failingRules.length > 0 && (
-                    <div className="absolute top-14 left-4 bg-red-500/90 text-white px-3 py-2 rounded-lg max-w-xs">
+                    <div className="absolute top-14 left-4 bg-red-500/90 text-white px-3 py-2 rounded-lg max-w-xs z-10">
                       <p className="text-xs font-medium mb-1">Failing:</p>
                       {failingRules.slice(0, 2).map((rule, i) => (
                         <p key={i} className="text-sm">{rule}</p>
@@ -731,27 +758,48 @@ function PracticeContent() {
                     </div>
                   )}
 
-                  {/* Coaching cue */}
+                  {/* Coaching cue + commentary */}
                   {isActive && (
-                    <div
-                      className={`absolute bottom-4 left-4 right-4 p-4 rounded-lg ${
-                        isGreen ? 'bg-accent-green/90' : 'bg-accent-red/90'
-                      }`}
-                    >
-                      <p className="text-white font-medium text-center">
-                        {coachingCue}
-                      </p>
-                      {focusMetric && (
-                        <p className="text-white/80 text-sm text-center mt-1">
-                          Focus: {focusMetric.replace(/_/g, ' ')}
-                        </p>
+                    <div className="absolute bottom-4 left-4 right-4 space-y-2 z-10">
+                      {/* AI Commentary */}
+                      {commentary && (
+                        <div className="bg-dark-900/85 backdrop-blur-sm rounded-lg px-4 py-2">
+                          <p className="text-white/90 text-sm italic">{commentary}</p>
+                          {reason && (
+                            <p className="text-white/60 text-xs mt-1">
+                              Reasoning: {reason}
+                            </p>
+                          )}
+                        </div>
                       )}
+                      {/* Main cue */}
+                      <div
+                        className={`p-4 rounded-lg ${
+                          isGreen ? 'bg-accent-green/90' : 'bg-accent-red/90'
+                        }`}
+                      >
+                        <p className="text-white font-medium text-center">
+                          {coachingCue}
+                        </p>
+                        <div className="flex items-center justify-center gap-3 mt-1">
+                          {focusMetric && (
+                            <span className="text-white/80 text-sm">
+                              Focus: {focusMetric.replace(/_/g, ' ')}
+                            </span>
+                          )}
+                          {latencyMs !== null && (
+                            <span className="text-white/60 text-xs bg-black/30 px-2 py-0.5 rounded-full">
+                              {latencyMs}ms
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
 
                   {/* Start prompt */}
                   {!isActive && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
                       <div className="text-center">
                         <div className="w-20 h-20 bg-primary-500 rounded-full flex items-center justify-center mx-auto mb-4 cursor-pointer hover:bg-primary-600 transition"
                              onClick={isPoseLoaded ? startSession : undefined}>
@@ -936,6 +984,40 @@ function PracticeContent() {
                   </p>
                 )}
               </div>
+
+              {/* AI Insights (Gemini 3) */}
+              {isActive && (
+                <div className="bg-gradient-to-br from-dark-900 to-dark-800 rounded-2xl p-6 border border-dark-700 shadow-sm">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-white">Gemini 3 Insights</h3>
+                    {latencyMs !== null && (
+                      <span className={`text-xs font-mono px-2 py-1 rounded-full ${
+                        latencyMs < 500 ? 'bg-accent-green/20 text-accent-green' :
+                        latencyMs < 1500 ? 'bg-yellow-500/20 text-yellow-400' :
+                        'bg-accent-red/20 text-accent-red'
+                      }`}>
+                        {latencyMs}ms
+                      </span>
+                    )}
+                  </div>
+                  {commentary ? (
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-xs text-dark-400 uppercase tracking-wider mb-1">Live Commentary</p>
+                        <p className="text-white/90 text-sm">{commentary}</p>
+                      </div>
+                      {reason && (
+                        <div>
+                          <p className="text-xs text-dark-400 uppercase tracking-wider mb-1">Reasoning</p>
+                          <p className="text-white/70 text-sm">{reason}</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-dark-400 text-sm">Waiting for Gemini 3 response...</p>
+                  )}
+                </div>
+              )}
 
               {/* Score */}
               {currentEvaluation && (

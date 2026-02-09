@@ -6,7 +6,7 @@ import type { TickRequest, TickResponse, PoseMetrics } from '@/lib/types';
 // Cache for rate limiting Gemini calls
 let lastGeminiCall = 0;
 const GEMINI_CALL_INTERVAL = 2000; // Minimum 2 seconds between Gemini calls
-let cachedResponse: { cue: string; focus_metric: string } | null = null;
+let cachedResponse: { cue: string; focus_metric: string; commentary?: string; reason?: string; latency_ms?: number } | null = null;
 
 export async function POST(request: Request) {
   try {
@@ -31,34 +31,47 @@ export async function POST(request: Request) {
 
     let cue = feedback[0];
     let focusMetric = determineFocusMetric(metrics);
+    let commentary = '';
+    let reason = '';
+    let latency_ms: number | undefined;
 
     if (shouldCallGemini && process.env.GEMINI_API_KEY) {
       try {
         lastGeminiCall = now;
 
-        const drillContext = drill_id
-          ? `Practicing drill: ${drill_id}`
+        // Sanitize drill_id to prevent prompt injection
+        const safeDrillId = drill_id && typeof drill_id === 'string'
+          ? drill_id.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 50)
+          : null;
+        const drillContext = safeDrillId
+          ? `Practicing drill: ${safeDrillId}`
           : undefined;
 
         const geminiResult = await getCoachingCue(metrics, drillContext);
         cue = geminiResult.cue;
         focusMetric = geminiResult.focus_metric;
+        commentary = geminiResult.commentary;
+        reason = geminiResult.reason;
+        latency_ms = geminiResult.latency_ms;
 
         // Cache the response
-        cachedResponse = { cue, focus_metric: focusMetric };
+        cachedResponse = { cue, focus_metric: focusMetric, commentary, reason, latency_ms };
       } catch (error) {
         console.error('Gemini error, using fallback:', error);
-        // Use cached response if available
         if (cachedResponse) {
           cue = cachedResponse.cue;
           focusMetric = cachedResponse.focus_metric;
+          commentary = cachedResponse.commentary || '';
+          reason = cachedResponse.reason || '';
+          latency_ms = cachedResponse.latency_ms;
         }
       }
     } else if (cachedResponse && !shouldCallGemini) {
-      // Use cached response to reduce API calls
-      // But still update based on current metrics if significantly different
       cue = cachedResponse.cue;
       focusMetric = cachedResponse.focus_metric;
+      commentary = cachedResponse.commentary || '';
+      reason = cachedResponse.reason || '';
+      latency_ms = cachedResponse.latency_ms;
     }
 
     const response: TickResponse = {
@@ -66,6 +79,9 @@ export async function POST(request: Request) {
       focus_metric: focusMetric,
       green_thresholds: DEFAULT_THRESHOLDS,
       is_green: isGreen,
+      commentary,
+      reason,
+      latency_ms,
     };
 
     return NextResponse.json(response);
